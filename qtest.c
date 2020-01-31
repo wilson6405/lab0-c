@@ -57,6 +57,13 @@ static int fail_count = 0;
 
 static int string_length = MAXSTRING;
 
+/* Avoid throwing exception during gdb debugging */
+#ifdef DEBUG
+static bool handle_exc = false;
+#else
+static bool handle_exc = true;
+#endif
+
 #define MIN_RANDSTR_LEN 5
 #define MAX_RANDSTR_LEN 10
 static const char charset[] = "abcdefghijklmnopqrstuvwxyz";
@@ -119,7 +126,7 @@ static bool do_new(int argc, char *argv[])
     }
     error_check();
 
-    if (exception_setup(true))
+    if (exception_setup(handle_exc))
         q = q_new();
     exception_cancel();
     qcnt = 0;
@@ -142,7 +149,7 @@ static bool do_free(int argc, char *argv[])
 
     if (qcnt > big_queue_size)
         set_cautious_mode(false);
-    if (exception_setup(true))
+    if (exception_setup(handle_exc))
         q_free(q);
     exception_cancel();
     set_cautious_mode(true);
@@ -204,7 +211,7 @@ static bool do_insert_head(int argc, char *argv[])
         report(3, "Warning: Calling insert head on null queue");
     error_check();
 
-    if (exception_setup(true)) {
+    if (exception_setup(handle_exc)) {
         for (int r = 0; ok && r < reps; r++) {
             if (need_rand)
                 fill_rand_string(randstr_buf, sizeof(randstr_buf));
@@ -275,7 +282,7 @@ static bool do_insert_tail(int argc, char *argv[])
         report(3, "Warning: Calling insert tail on null queue");
     error_check();
 
-    if (exception_setup(true)) {
+    if (exception_setup(handle_exc)) {
         for (int r = 0; ok && r < reps; r++) {
             if (need_rand)
                 fill_rand_string(randstr_buf, sizeof(randstr_buf));
@@ -345,7 +352,7 @@ static bool do_remove_head(int argc, char *argv[])
     error_check();
 
     bool rval = false;
-    if (exception_setup(true))
+    if (exception_setup(handle_exc))
         rval = q_remove_head(q, removes, string_length + 1);
     exception_cancel();
 
@@ -411,7 +418,7 @@ static bool do_remove_head_quiet(int argc, char *argv[])
     error_check();
 
     bool rval = false;
-    if (exception_setup(true))
+    if (exception_setup(handle_exc))
         rval = q_remove_head(q, NULL, 0);
     exception_cancel();
 
@@ -444,7 +451,7 @@ static bool do_reverse(int argc, char *argv[])
     error_check();
 
     set_noallocate_mode(true);
-    if (exception_setup(true))
+    if (exception_setup(handle_exc))
         q_reverse(q);
     exception_cancel();
 
@@ -478,7 +485,7 @@ static bool do_size(int argc, char *argv[])
         report(3, "Warning: Calling size on null queue");
     error_check();
 
-    if (exception_setup(true)) {
+    if (exception_setup(handle_exc)) {
         for (int r = 0; ok && r < reps; r++) {
             cnt = q_size(q);
             ok = ok && !error_check();
@@ -519,7 +526,7 @@ bool do_sort(int argc, char *argv[])
     error_check();
 
     set_noallocate_mode(true);
-    if (exception_setup(true))
+    if (exception_setup(handle_exc))
         q_sort(q);
     exception_cancel();
     set_noallocate_mode(false);
@@ -555,7 +562,7 @@ static bool show_queue(int vlevel)
 
     report_noreturn(vlevel, "q = [");
     list_ele_t *e = q->head;
-    if (exception_setup(true)) {
+    if (exception_setup(handle_exc)) {
         while (ok && e && cnt < qcnt) {
             if (cnt < big_queue_size)
                 report_noreturn(vlevel, cnt == 0 ? "%s" : " %s", e->value);
@@ -626,7 +633,7 @@ static bool queue_quit(int argc, char *argv[])
     if (qcnt > big_queue_size)
         set_cautious_mode(false);
 
-    if (exception_setup(true))
+    if (exception_setup(handle_exc))
         q_free(q);
     exception_cancel();
     set_cautious_mode(true);

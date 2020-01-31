@@ -52,7 +52,12 @@ static bool noallocate_mode = false;
 static bool error_occurred = false;
 static char *error_message = "";
 
+/* Avoid throwing exception during gdb debugging */
+#ifdef DEBUG
+static int time_limit = 0;
+#else
 static int time_limit = 1;
+#endif
 
 /*
  * Data for managing exceptions

@@ -13,6 +13,10 @@ else
     VECHO = @printf
 endif
 
+ifeq ("$(DEBUG)", "1")
+	CFLAGS += -Og -DDEBUG
+endif
+
 # Enable sanitizer(s) or not
 ifeq ("$(SANITIER)","1")
     # https://github.com/google/sanitizers/wiki/AddressSanitizerFlags
