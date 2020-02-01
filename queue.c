@@ -16,13 +16,25 @@ queue_t *q_new()
         return NULL;
 
     q->head = NULL;
+    q->size = 0;
     return q;
 }
 
 /* Free all storage used by queue */
 void q_free(queue_t *q)
 {
-    /* TODO: How about freeing the list elements and the strings? */
+    if (q == NULL)
+        return;
+
+    list_ele_t *tmp = NULL;
+
+    while (q->head != NULL) {
+        free(q->head->value);
+        tmp = q->head->next;
+        free(q->head);
+        q->head = tmp;
+    }
+
     /* Free queue structure */
     free(q);
 }
@@ -43,12 +55,7 @@ bool q_insert_head(queue_t *q, char *s)
     if (newh == NULL)
         return false;
 
-    if (0 == q->size) {
-        newh->next = NULL;
-    } else {
-        newh->next = q->head;
-    }
-
+    newh->next = q->head;
     q->head = newh;
     q->size++;
 
@@ -103,6 +110,9 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
  */
 int q_size(queue_t *q)
 {
+    if (q == NULL)
+        return 0;
+
     return q->size;
 }
 
