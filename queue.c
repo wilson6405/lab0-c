@@ -16,6 +16,7 @@ queue_t *q_new()
         return NULL;
 
     q->head = NULL;
+    q->tail = q->head;
     q->size = 0;
     return q;
 }
@@ -56,6 +57,9 @@ bool q_insert_head(queue_t *q, char *s)
         return false;
 
     newh->next = q->head;
+    if (newh->next == NULL)
+        q->tail = newh;
+
     q->head = newh;
     q->size++;
 
@@ -98,9 +102,28 @@ bool q_insert_tail(queue_t *q, char *s)
  */
 bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
 {
-    /* TODO: You need to fix up this code. */
-    /* TODO: Remove the above comment when you are about to implement. */
+    if (q == NULL || q->head == NULL)
+        return false;
+
+    list_ele_t *tmp = q->head;
     q->head = q->head->next;
+    if (q->head == NULL)
+        q->tail = NULL;
+
+    q->size--;
+
+    if (tmp->value != NULL) {
+        if (sp != NULL) {
+            size_t length = (strlen(tmp->value) < bufsize - 1)
+                                ? strlen(tmp->value)
+                                : bufsize - 1;
+            strncpy(sp, tmp->value, length);
+            sp[length] = '\0';
+        }
+        free(tmp->value);
+    }
+    free(tmp);
+
     return true;
 }
 
